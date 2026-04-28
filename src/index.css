@@ -196,6 +196,39 @@ body {
 }
 .term-target-input::placeholder { color: #333; }
 
+/* ── Target bar ── */
+.target-bar {
+  padding: 5px 12px;
+  background: #111;
+  border-bottom: 1px solid #1a1a1a;
+  flex-shrink: 0;
+}
+.target-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffaa00;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+}
+.target-input::placeholder { color: #333; }
+
+/* ── Auto button ── */
+.auto-btn {
+  background: #ffaa0011;
+  border: 1px solid #ffaa0044;
+  color: #ffaa00;
+  padding: 3px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.auto-btn:hover { background: #ffaa0022; }
+.auto-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
 /* ── Buttons ── */
 .send-btn {
   background: #00ff4111;

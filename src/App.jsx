@@ -71,11 +71,10 @@ Format:
 ]
 
 async function callAI(aiKey, messages) {
-  const { endpoint, key } = AIS[aiKey]
-  const res = await fetch(endpoint, {
+  const res = await fetch('/api/ai', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'api-key': key },
-    body: JSON.stringify({ messages, max_tokens: 2500 }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: aiKey, messages, max_tokens: 2500 }),
   })
   if (!res.ok) throw new Error(`API ${res.status}`)
   return (await res.json()).choices[0].message.content
@@ -178,6 +177,34 @@ const ReportablePanelView = forwardRef(function ReportablePanelView({ def, onSen
   const [target, setTarget] = useState('')
   const [cmdHistory, setCmdHistory] = useState([])
   const [histIdx, setHistIdx] = useState(-1)
+  const [autoRunning, setAutoRunning] = useState(false)
+
+  const runAuto = useCallback(async () => {
+    if (!target) { panel.add('system', '[!] Set a target first'); return }
+    if (def.tools.length === 0) return
+    setAutoRunning(true)
+    panel.add('ai', `🤖 Auto mode started for ${target}\nRunning: ${def.tools.join(', ')}...`)
+
+    // run all tools sequentially
+    const allOutputs = {}
+    for (const tool of def.tools) {
+      await new Promise(resolve => {
+        term.run(tool, target, (t, out) => { allOutputs[t] = out; resolve() })
+      })
+    }
+
+    // ask AI to analyze everything
+    const combined = Object.entries(allOutputs).map(([t, o]) => `### ${t}:\n${o}`).join('\n\n')
+    const prompt = `Target: ${target}\n\nTool outputs:\n${combined}\n\nAnalyze these results. What did you find? What are the most interesting findings? What should be investigated next?`
+    panel.add('user', `[Auto] Analyze all tool outputs for ${target}`)
+    const analysis = await panel.ask(prompt)
+
+    if (analysis) {
+      panel.add('system', '✅ Auto analysis complete — use → Report to generate a full report')
+      onSendToReport(`Target: ${target}\n\n${combined}`)
+    }
+    setAutoRunning(false)
+  }, [target, def.tools, term, panel, onSendToReport])
 
   useImperativeHandle(ref, () => ({
     receiveOutput: (text) => {
@@ -244,6 +271,16 @@ const ReportablePanelView = forwardRef(function ReportablePanelView({ def, onSen
   return (
     <div className="panel-view">
       <div className="chat-section">
+        {def.tools.length > 0 && (
+          <div className="target-bar">
+            <input
+              value={target}
+              onChange={e => setTarget(e.target.value)}
+              placeholder="set target (e.g. example.com)"
+              className="target-input"
+            />
+          </div>
+        )}
         <div className="messages">
           {panel.msgs.map(m => (
             <div key={m.id} className={`msg ${m.type === 'report' ? 'report' : m.type}`}>
@@ -276,6 +313,11 @@ const ReportablePanelView = forwardRef(function ReportablePanelView({ def, onSen
               disabled={panel.loading}
             />
             <button type="submit" className="send-btn" disabled={panel.loading || !input.trim()}>Send</button>
+            {def.tools.length > 0 && (
+              <button type="button" className="auto-btn" onClick={runAuto} disabled={autoRunning || term.running || !target}>
+                {autoRunning ? '⏳ Auto...' : '⚡ Auto'}
+              </button>
+            )}
             {panel.msgs.length > 0 && <button type="button" className="export-btn" onClick={panel.clear}>🗑</button>}
           </div>
         </form>
@@ -310,14 +352,6 @@ const ReportablePanelView = forwardRef(function ReportablePanelView({ def, onSen
             ))}
             {term.running && <div style={{ color: '#00ff41' }}>▋</div>}
             <div ref={termBottomRef} />
-          </div>
-          <div className="term-input-row">
-            <input
-              value={target}
-              onChange={e => setTarget(e.target.value)}
-              placeholder="target (e.g. example.com)"
-              className="term-target-input"
-            />
           </div>
         </div>
       )}
