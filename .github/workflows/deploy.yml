@@ -1,0 +1,29 @@
+name: Deploy to Azure Static Web Apps
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build & Deploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: /
+          output_location: dist
+        env:
+          VITE_PASSWORD: ${{ secrets.VITE_PASSWORD }}
+          VITE_BACKEND: ${{ secrets.VITE_BACKEND }}
+          VITE_GROK_ENDPOINT: ${{ secrets.VITE_GROK_ENDPOINT }}
+          VITE_GROK_KEY: ${{ secrets.VITE_GROK_KEY }}
+          VITE_DEEPSEEK_ENDPOINT: ${{ secrets.VITE_DEEPSEEK_ENDPOINT }}
+          VITE_DEEPSEEK_KEY: ${{ secrets.VITE_DEEPSEEK_KEY }}
+          VITE_PHI4_ENDPOINT: ${{ secrets.VITE_PHI4_ENDPOINT }}
+          VITE_PHI4_KEY: ${{ secrets.VITE_PHI4_KEY }}
