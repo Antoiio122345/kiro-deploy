@@ -28,32 +28,32 @@ body {
 .header-status { font-size: 11px; color: #555; }
 .header-status.online { color: #00ff41; }
 
-/* ── Tabs ── */
-.tabs {
-  display: flex;
-  background: #0d0d0d;
-  border-bottom: 1px solid #1a1a1a;
-  flex-shrink: 0;
-}
-.tab {
-  padding: 8px 20px;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: #444;
-  cursor: pointer;
-  font-family: 'Courier New', monospace;
-  font-size: 12px;
-  transition: color 0.15s;
-}
-.tab:hover { color: #888; }
-.tab.active { color: #00ff41; border-bottom-color: #00ff41; }
-
-/* ── Tab content ── */
-.tab-content {
+/* ── Side-by-side panels ── */
+.panels {
   flex: 1;
   display: flex;
   overflow: hidden;
+  gap: 1px;
+  background: #1a1a1a;
+}
+
+.panel-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #0d0d0d;
+  border-top: 2px solid #333;
+}
+
+.panel-col-title {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  background: #111;
+  border-bottom: 1px solid #1a1a1a;
+  flex-shrink: 0;
 }
 
 /* ── Panel view: chat left, terminal right ── */

@@ -322,7 +322,6 @@ export default function App() {
   const [authed, setAuthed] = useState(false)
   const [password, setPassword] = useState('')
   const [pwError, setPwError] = useState('')
-  const [activeTab, setActiveTab] = useState('recon')
   const [target, setTarget] = useState('')
   const [reports, setReports] = useState([])
   const [showHistory, setShowHistory] = useState(false)
@@ -337,8 +336,6 @@ export default function App() {
   }
 
   const handleSendToReport = useCallback((text) => {
-    setActiveTab('report')
-    // small delay so tab switches first
     setTimeout(() => reportPanelRef.current?.receiveOutput(text), 100)
   }, [])
 
@@ -376,22 +373,10 @@ export default function App() {
         </div>
       </div>
 
-      <div className="tabs">
+      <div className="panels">
         {PANELS.map(p => (
-          <button
-            key={p.id}
-            className={`tab ${activeTab===p.id?'active':''}`}
-            style={activeTab===p.id?{borderBottomColor: p.color, color: p.color}:{}}
-            onClick={() => setActiveTab(p.id)}
-          >
-            {p.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="tab-content">
-        {PANELS.map(p => (
-          <div key={p.id} style={{display: activeTab===p.id?'flex':'none', flex:1, overflow:'hidden'}}>
+          <div key={p.id} className="panel-col" style={{borderTopColor: p.color}}>
+            <div className="panel-col-title" style={{color: p.color}}>{p.label}</div>
             <ReportablePanelView
               def={p}
               target={target}
