@@ -1,15 +1,4 @@
- const https = require('https')
-  const { URL } = require('url')
-  
-  const AIS = {
-    grok:     { endpoint: process.env.VITE_GROK_ENDPOINT,     key: process.env.VITE_GROK_KEY
-  },
-    deepseek: { endpoint: process.env.VITE_DEEPSEEK_ENDPOINT, key:
-  process.env.VITE_DEEPSEEK_KEY },
-    phi4:     { endpoint: process.env.VITE_PHI4_ENDPOINT,     key: process.env.VITE_PHI4_KEY
-  },
-  }
-  
+
   module.exports = async function (context, req) {
     const { model, messages, max_tokens = 2500 } = req.body || {}
     const ai = AIS[model]
@@ -50,5 +39,6 @@
       }
     } catch (err) {
       context.log.error('AI request failed:', err.message)
-      context.res = { status: 500, body: { error: err.message } }
+      context.res = { status: 500, body: { error: 'internal server error' } }
     }
+  }
